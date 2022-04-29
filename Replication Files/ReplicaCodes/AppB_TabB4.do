@@ -1,6 +1,9 @@
 /*********************************************************************/
 /*** Appendix B: City-level Mode Substitutions					   ***/
 /*********************************************************************/
+
+*/ This section aims to present descriptive evidence of transport mode substitution after subway expansion based on household-level travel data in Beijing.*/
+
 clear all
 set more off
 set matsize 11000
@@ -14,7 +17,15 @@ use Data/PublicTransits.dta, clear
 /******************************/
 /*** I. Keep variables		***/
 /******************************/
+
+
+*/ Relevant variables for estimation are maintained: annual subway ridership, bus ridership, and car ownership, by year and city*/
+
 keep city year citypop10k buspassenger10k subwayridership10k ncivilvehicle10k ncar10k busmileage10kkm
+
+
+
+*/Empty data is removed*/
 
 /* dalian does not have subway in 2002 */
 replace subwayridership10k = . if city == "Dalian" & year == 2002
@@ -56,6 +67,8 @@ gen t = year - 2001
 /******************************/
 eststo clear
 
+*/they investigate the correlations between the number of subway passengers and the volumes of the different methods of transport while controlling for fixed effects of year and city.*/
+
 /* Bus Ridership on Subway Ridership */
 reghdfe BusRidePC SubwayRidePC, a(citycode year) cluster(citycode)
 eststo Col1
@@ -67,7 +80,8 @@ estadd scalar NCity = `r(r)'
 sum BusRidePC if e(sample) == 1
 estadd scalar MeanDep = `r(mean)'
 
-/* Bus Mileage on Subway Ridership */
+*/Same regression as above but changes Bus Mileage on Subway Ridership*/
+
 reghdfe BusMileagePC SubwayRidePC, a(citycode year) cluster(citycode)
 eststo Col2
 estadd scalar CityFE = 1
@@ -78,7 +92,7 @@ estadd scalar NCity = `r(r)'
 sum BusMileagePC if e(sample) == 1
 estadd scalar MeanDep = `r(mean)'
 
-/* Vehicle ownership on Subway Ridership */
+*/Same regression as above but changes Vehicle ownership on Subway Ridership*/
 reghdfe NCivVehPC SubwayRidePC, a(citycode year) cluster(citycode)
 eststo Col3
 estadd scalar CityFE = 1
@@ -89,9 +103,13 @@ estadd scalar NCity = `r(r)'
 sum NCivVehPC if e(sample) == 1
 estadd scalar MeanDep = `r(mean)'
 
+*/The results of the previous graphs due to the fact that there is a moderate substitution between
+subway rides and car ownership.*/
+
 /******************************/
 /*** III. Table				***/
 /******************************/
+
 # delimit ;
 esttab Col*,
 	b(3) se(3)
