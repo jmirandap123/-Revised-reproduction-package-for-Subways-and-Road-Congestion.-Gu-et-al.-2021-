@@ -19,6 +19,13 @@ gen post = (wk2open >= 0)
 /**********************************************/
 /*** II. Varying Post						***/
 /**********************************************/
+
+/*se amplian la muestra hasta 48 semanas antes y después de la apertura de la línea del metro cada una con una semana de apertura del metro placebo entre 48 semanas antes y 48 semanas después de la semana de apertura actual*/
+/*El siguiente loop permite encontrar las estadìsticas de Wald asociadas con la variable tratamientoxpost. se representan frente a la semana de apertura placebo en relaciòn a la semana real de apertura*/
+/*Lo anterior lo hacen con el objetivo de que aliviar la preocupación de que los resultados están impulsados por algunas tendencias temporales confusas, 
+por esto prueban si el momento del efecto coincide con el momento de la apertura de las líneas de metro. Los resultados sugieren que esto no sucede.*/
+
+
 summ wk2open
 local min = `r(min)'
 local max = `r(max)'
