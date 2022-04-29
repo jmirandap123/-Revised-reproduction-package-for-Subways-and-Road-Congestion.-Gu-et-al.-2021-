@@ -15,8 +15,15 @@ use Data/BaseSamp.dta, replace
 /*********************************************************************/
 /*** I. Sample and additional variables							   ***/
 /*********************************************************************/
+
+/* It is maintained 48 weeks before and 47 weeks after the opening of the metro line */
+
 /*** week to launch between [-48,47] ***/
 keep if inrange(wk2open,-48,47)
+
+*/The problem with pretreatment trends is that when you focus on the effect in a narrow neighborhood around the launch date (fweeks closest to week 0) */
+*/Because of the above, the difference in discontinuity models are estimated by including a flexible time trend with up to the 5th polynomial, separately for the treated and
+control segments, and separately for before and after periods.*/
 
 /*** Week-to-opening olynomials, by treatment status and pre-post ***/
 gen post = (wk2open >= 0)
@@ -31,6 +38,7 @@ gen wk2open4_post_treat = abs(wk2open)^4 * (post==1) * treat
 gen wk2open5_pre_treat = abs(wk2open)^5 * (post==0) * treat
 gen wk2open5_post_treat = abs(wk2open)^5 * (post==1) * treat
 
+*/From here it is not very clear to me what happens with the variables that are created, but if it is understood that they are creating the matrices that include the periods per treatment (before, during and after the opening of the stations)*/
 
 /*** Matrices ***/
 summ wk2open
@@ -71,6 +79,8 @@ mat C = A
 /*********************************************************************/
 /*** II. Regressions											   ***/
 /*********************************************************************/
+
+*/ The following regression has the objective of estimating week by week (48 weeks before treatment) and checking the effect just at the moment the meter opens.*/
 
 /*** Fig 4A: stacked DID ***/
 set more off
