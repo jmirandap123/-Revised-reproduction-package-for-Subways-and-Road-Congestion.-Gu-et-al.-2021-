@@ -11,11 +11,16 @@ log using "LogFiles/Tab3", replace
 
 use Data/BaseSamp.dta, replace
 
+*/The average effect of the static specifications is estimated here, replacing the dummy variables. They do this via stacked DID, twoway FEs with treated only and twoway FEs with treated only, adj. for differential seasonality .*/
+*/The dependent variable for the 3 cases is weekly average residual speed */
 
 /*********************************************************************/
 /*** I. Sample and additional variables							   ***/
 /*********************************************************************/
-	/* Treat X Post */
+
+*A variable is created that represents those treated after treatment, and the variable post represents the period after treatment*
+
+/* Treat X Post */
 gen TP = treat * (wk2open >= 0)
 gen post = (wk2open >= 0)
 
