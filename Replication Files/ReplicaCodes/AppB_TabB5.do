@@ -11,6 +11,17 @@ log using "LogFiles/AppB_TabB5", replace
 
 
 use "Data/HourlySample.dta", clear
+
+
+*/This regression aims to replicate the estimate in Table 3, with the difference in sizes between weeks using a one-step baseline./
+
+*/Table 3, which is estimated through two steps, is irrelevant, since the two-step approach takes the average residual value of the
+logging rate per hour at the weekly level, then each weekly observation is treated equally. The problem is that, due to
+national holidays, missing data, not every week has 20 hours. The second reason is that the two-step approach uses an estimated variable as the dependent variable, which makes
+the standard error in the second step is incorrect.
+
+*/ It is run through DID, Two Way FE, no control, no seasonality and Two-way FE, with control, account for seasonality */
+
 /*** 1. Stacked DID, seasonality***/
 # delimit ;
 reghdfe lnspd treat_post post treat
@@ -40,6 +51,10 @@ eststo Col3
 timer off 2
 timer list 2
 
+
+
+*/Concluding the previous estimate, no differences in magnitude are found with the regression to be replicated, so the conclusions are not affected.*/
+
 /*** Display ***/
 # delimit ;
 esttab Col*
@@ -67,3 +82,4 @@ esttab Col* using "TablesFigures/AppB_Tab5.tex"
 timer off 1
 timer list 1
 cap log close
+
