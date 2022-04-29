@@ -37,8 +37,14 @@ forvalues i = 2/7 {
 /**********************************************/
 /*** II. RD regs							***/
 /**********************************************/
+
+*/The following regression discontinuity shows that the performance variable is time relative to the opening of the subway */
+*/It is done in order to control flexible temporal trends and identify a discontinuous change in the result in the vicinity of the policy change.*/
+
 set more off
 eststo clear
+
+*/Includes a linear time trend for both treated and control groups Higher order polynomials are added in Columns 2 and 3, estimates for treated and control segments become smaller.*/
 
 /*** A: treated ***/
 reg lnspd_res post wk2open if treat == 1 & inrange(wk2open,-6,47), cluster(case) 
@@ -141,11 +147,15 @@ esttab ColB* using "TablesFigures/AppB_TabB2B.tex"
 /*** III. RD graphs							***/
 /**********************************************/
 
+*/A weekly average of the residual speed was made for the treated and control road sections. for each week relative to the opening of the metro line, first the averages are taken within each metro line, and then taken along 45 lines.
+
 /*** Collapse to case-treat-wk2open		***/
 /*** then further collapse to treat-wk2open***/
 collapse (mean) lnspd_res, by(case treat wk2open)
 
 collapse (mean) lnspd_res, by(treat wk2open)
+
+*/ The residuals of the treated road segment are graphed, represented by red points, while the control points are represented by green.
 
 /*** Graph		***/
 gen lnspd_res_adj = lnspd_res + 0.0278767 if treat == 1
