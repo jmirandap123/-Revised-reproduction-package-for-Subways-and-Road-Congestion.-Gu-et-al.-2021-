@@ -64,6 +64,8 @@ mat D = A
 /*** II. Regressions											   ***/
 /*********************************************************************/
 
+/**The objective of making these estimates is to run the difference-in-differences model with the aim of estimating the change in the residual speed record in road sections treated before and after the launch of a new metro line with the change contemporary speed control road sections. However, both the treated and control cities are statistically different in certain characteristics, so it is necessary to check the base assumption of the DID methodology that is parallel trends. This implies that the trend that is observed in the variable of interest or outcome for the comparison group is equal to the trend that would have been observed in the treatment group if it had not received the intervention. Three graphs are made where panels A and C control the differential seasonality by allowing the specific effects of the week to differ according to the characteristics of the city.*/
+
 /*** Fig 2A: stacked DID, adjusted for differential seasonality***/
 set more off
 # delimit ;
