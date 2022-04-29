@@ -15,11 +15,17 @@ use "Data/ExtendSample.dta", clear
 /*** I. Sample and additional variables							   ***/
 /*********************************************************************/
 
+**** Interactions are created to analyze heterogeneous effects**/
+
 /*** INTERACTIONS  ***/
+
+
+*/ Interaction between treaties subsequent to the creation of metro lines and the type of track */
 gen Dp_Roadtype12 = Dp * (roadtype == 1 | roadtype == 2)
 gen Dp_Roadtype3 = Dp * (roadtype == 3)
 gen Dp_Roadtype4 = Dp * (roadtype == 4)
 
+*/Interaction between the post treaties and the treated or control distance segment in km. */
 gen Dp_dist2line_0to1 = Dp * (inrange(link2_nearest_treat_line_km,0,1))
 gen Dp_dist2line_1to2 = Dp * (inrange(link2_nearest_treat_line_km,1,2))
 gen Dp_dist2line_1to2p5 = Dp * (inrange(link2_nearest_treat_line_km,1,2.5))
@@ -27,15 +33,19 @@ gen Dp_dist2line_2to5 = Dp * (inrange(link2_nearest_treat_line_km,2,5))
 gen Dp_dist2line_5to10 = Dp * (inrange(link2_nearest_treat_line_km,5,10))
 gen Dp_dist2line_abv10 = Dp * (link2_nearest_treat_line_km > 10)
 
+*/ Interaction between post treaties and whether the segment is approximately in the same direction as the closest treated (or control) */
 gen Dp_same_direct = Dp * same_direct
 gen Dp_diff_direct = Dp * (same_direct == 0)
 gen Dp_same_direct_roadtype12 = Dp * same_direct * (roadtype == 1 | roadtype == 2)
 gen Dp_same_direct_roadtype3 = Dp * same_direct * (roadtype == 3)
 gen Dp_same_direct_roadtype4 = Dp * same_direct * (roadtype == 4 | roadtype == 5)
 
+
+*/ Interaction between post treaties and if the segment is directly affected by a new line. */
 gen Dp_MostAffectedLinks = Dp * MostAffectedLinks
 gen Dp_NonMostAffectedLinks = Dp * (MostAffectedLinks == 0)
 
+*/Interaction between post-treated if the cingation coefficient exceeds the median */
 gen Dp_MoreCongested = Dp * (MoreCongested == 1)
 gen Dp_LessCongested = Dp * (MoreCongested == 0)
 
@@ -44,6 +54,12 @@ gen Dp_LessCongested = Dp * (MoreCongested == 0)
 /**************************************/
 set more off
 mat E = J(20,4,.)
+
+/*The regression of the dependent variable that represents average weekly residual registration speed is run against the variables of the general model against characteristics that include the geographical location of the segment in relation to the metro line, its initial level of congestion and its position in the broader urban area, through the DID methodology.
+/*These heterogeneities could speak of the effect of a typical metro line on a hypothetical road network*
+/* This is done in order to check how much one meter reduces overall road congestion and how the effect differs between different road segments in the urban area and not just on specific roads*/
+
+/* From here, they start running the regressions by features (each feature represents a column)
 
 /*** Col 1: Baseline ***/
 # delimit ;
