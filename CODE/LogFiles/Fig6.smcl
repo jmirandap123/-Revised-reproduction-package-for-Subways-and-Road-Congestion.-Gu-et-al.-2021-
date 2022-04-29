@@ -1,0 +1,1249 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}I:\Speed\ReplicationFiles\LogFiles/Fig6.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}17 Nov 2019, 17:46:55
+{txt}
+{com}. 
+. use "Data/ExtendSample.dta", clear
+{txt}
+{com}. 
+. /*********************************************************************/
+. /*** I. Sample and additional variables                                                    ***/
+. /*********************************************************************/
+. 
+. /*** INTERACTIONS  ***/
+. gen Dp_Roadtype12 = Dp * (roadtype == 1 | roadtype == 2)
+{txt}
+{com}. gen Dp_Roadtype3 = Dp * (roadtype == 3)
+{txt}
+{com}. gen Dp_Roadtype4 = Dp * (roadtype == 4)
+{txt}
+{com}. 
+. gen Dp_dist2line_0to1 = Dp * (inrange(link2_nearest_treat_line_km,0,1))
+{txt}
+{com}. gen Dp_dist2line_1to2 = Dp * (inrange(link2_nearest_treat_line_km,1,2))
+{txt}
+{com}. gen Dp_dist2line_1to2p5 = Dp * (inrange(link2_nearest_treat_line_km,1,2.5))
+{txt}
+{com}. gen Dp_dist2line_2to5 = Dp * (inrange(link2_nearest_treat_line_km,2,5))
+{txt}
+{com}. gen Dp_dist2line_5to10 = Dp * (inrange(link2_nearest_treat_line_km,5,10))
+{txt}
+{com}. gen Dp_dist2line_abv10 = Dp * (link2_nearest_treat_line_km > 10)
+{txt}
+{com}. 
+. gen Dp_same_direct = Dp * same_direct
+{txt}(10,018 missing values generated)
+
+{com}. gen Dp_diff_direct = Dp * (same_direct == 0)
+{txt}
+{com}. gen Dp_same_direct_roadtype12 = Dp * same_direct * (roadtype == 1 | roadtype == 2)
+{txt}(10,018 missing values generated)
+
+{com}. gen Dp_same_direct_roadtype3 = Dp * same_direct * (roadtype == 3)
+{txt}(10,018 missing values generated)
+
+{com}. gen Dp_same_direct_roadtype4 = Dp * same_direct * (roadtype == 4 | roadtype == 5)
+{txt}(10,018 missing values generated)
+
+{com}. 
+. gen Dp_MostAffectedLinks = Dp * MostAffectedLinks
+{txt}(10,018 missing values generated)
+
+{com}. gen Dp_NonMostAffectedLinks = Dp * (MostAffectedLinks == 0)
+{txt}
+{com}. 
+. gen Dp_MoreCongested = Dp * (MoreCongested == 1)
+{txt}
+{com}. gen Dp_LessCongested = Dp * (MoreCongested == 0)
+{txt}
+{com}. 
+. /**************************************/
+. /*** VI. Estimation and extract         ***/
+. /**************************************/
+. set more off
+{txt}
+{com}. mat E = J(20,4,.)
+{txt}
+{com}. 
+. /*** Col 1: Baseline ***/
+. # delimit ;
+{txt}delimiter now ;
+{com}. reghdfe lnspd_res 
+>         Dp 
+>         treat if (link2_nearest_treat_line_km <= 2.5 | treat == 0) 
+>         , a(case_wk2open case_linkid yrwk##c.(lnpop lngdppc)) cluster(case)
+> ;
+{res}{txt}note: treat is probably collinear with the fixed effects (all values close to zero after partialling-out; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 17 iterations)
+{res}{txt}note: treat omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res} 1,925,901
+{txt}Absorbing 3 HDFE groups{col 51}F({res}   1{txt},{res}     34{txt}){col 67}= {res}     20.92
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0001
+{txt}{col 51}R-squared{col 67}= {res}    0.2443
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.2205
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0008
+{txt}{col 1}Number of clusters ({res}case{txt}) {col 30}= {res}        35{txt}{col 51}Root MSE{col 67}= {res}    0.1214
+
+{txt}{ralign 78:(Std. Err. adjusted for {res:35} clusters in case)}
+{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}   lnspd_res{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 10}Dp {c |}{col 14}{res}{space 2} .0305016{col 26}{space 2} .0066686{col 37}{space 1}    4.57{col 46}{space 3}0.000{col 54}{space 4} .0169493{col 67}{space 3} .0440538
+{txt}{space 7}treat {c |}{col 14}{res}{space 2}        0{col 26}{txt}  (omitted)
+{space 7}_cons {c |}{col 14}{res}{space 2}-.0139981{col 26}{space 2} .0046556{col 37}{space 1}   -3.01{col 46}{space 3}0.005{col 54}{space 4}-.0234594{col 67}{space 3}-.0045369
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 16}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text}    Absorbed FE{col 17}{c |} Categories{col 30} - Redundant{col 42}  = Num. Coefs{col 57}{c |}
+{col 1}{text}{hline 16}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}   case_wk2open{col 17}{c |}{space 1}     1213{col 30}{space 1}     1213{col 42}{result}{space 1}        0{col 56}{text}*{col 57}{c |}
+{col 1}{text}    case_linkid{col 17}{c |}{space 1}    57224{col 30}{space 1}    57224{col 42}{result}{space 1}        0{col 56}{text}*{col 57}{c |}
+{col 1}{text}           yrwk{col 17}{c |}{space 1}       74{col 30}{space 1}        0{col 42}{result}{space 1}       74{col 56}{text} {col 57}{c |}
+{col 1}{text}   yrwk#c.lnpop{col 17}{c |}{space 1}       74{col 30}{space 1}        0{col 42}{result}{space 1}       74{col 56}{text}?{col 57}{c |}
+{col 1}{text} yrwk#c.lngdppc{col 17}{c |}{space 1}       74{col 30}{space 1}        0{col 42}{result}{space 1}       74{col 56}{text}?{col 57}{c |}
+{col 1}{text}{hline 16}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+? = number of redundant parameters may be higher
+* = FE nested within cluster; treated as redundant for DoF computation
+
+{com}. # delimit cr
+{txt}delimiter now cr
+{com}. eststo ACol1
+{txt}
+{com}. mat E[1,1] = 1
+{txt}
+{com}. mat E[1,2] = _b[Dp]
+{txt}
+{com}. mat E[1,3] = _se[Dp]
+{txt}
+{com}. qui summ CI if e(sample) == 1
+{txt}
+{com}. mat E[1,4] = `r(mean)'
+{txt}
+{com}. 
+. 
+. /*** Col 2: directly affected  ***/
+. cap drop hetero
+{txt}
+{com}. cap drop case_wk2open_hetero
+{txt}
+{com}. gen hetero = 1 if MostAffectedLinks == 1
+{txt}(3,544,957 missing values generated)
+
+{com}. replace hetero = 2 if MostAffectedLinks != 1
+{txt}(3,544,957 real changes made)
+
+{com}. tab hetero, m
+
+     {txt}hetero {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          1 {c |}{res}    200,928        5.36        5.36
+{txt}          2 {c |}{res}  3,544,957       94.64      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}  3,745,885      100.00
+{txt}
+{com}. egen case_wk2open_hetero = group(case wk2open hetero)
+{txt}
+{com}. 
+. # delimit ;
+{txt}delimiter now ;
+{com}. reghdfe lnspd_res 
+>         Dp_NonMostAffectedLinks Dp_MostAffectedLinks
+>         treat if (link2_nearest_treat_line_km <= 2.5 | treat == 0)
+>         , a(case_wk2open case_linkid case_wk2open_hetero yrwk##c.(lnpop lngdppc)) cluster(case)
+> ;
+{res}{txt}note: treat is probably collinear with the fixed effects (all values close to zero after partialling-out; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 19 iterations)
+{res}{txt}note: treat omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res} 1,915,883
+{txt}Absorbing 4 HDFE groups{col 51}F({res}   2{txt},{res}     34{txt}){col 67}= {res}     11.43
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0002
+{txt}{col 51}R-squared{col 67}= {res}    0.2466
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.2221
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0008
+{txt}{col 1}Number of clusters ({res}case{txt}) {col 30}= {res}        35{txt}{col 51}Root MSE{col 67}= {res}    0.1214
+
+{txt}{ralign 89:(Std. Err. adjusted for {res:35} clusters in case)}
+{hline 24}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 25}{c |}{col 37}    Robust
+{col 1}              lnspd_res{col 25}{c |}      Coef.{col 37}   Std. Err.{col 49}      t{col 57}   P>|t|{col 65}     [95% Con{col 78}f. Interval]
+{hline 24}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+Dp_NonMostAffectedLinks {c |}{col 25}{res}{space 2} .0285742{col 37}{space 2} .0069437{col 48}{space 1}    4.12{col 57}{space 3}0.000{col 65}{space 4} .0144629{col 78}{space 3} .0426855
+{txt}{space 3}Dp_MostAffectedLinks {c |}{col 25}{res}{space 2} .0466791{col 37}{space 2} .0106601{col 48}{space 1}    4.38{col 57}{space 3}0.000{col 65}{space 4} .0250151{col 78}{space 3} .0683432
+{txt}{space 18}treat {c |}{col 25}{res}{space 2}        0{col 37}{txt}  (omitted)
+{space 18}_cons {c |}{col 25}{res}{space 2}-.0140281{col 37}{space 2} .0048596{col 48}{space 1}   -2.89{col 57}{space 3}0.007{col 65}{space 4} -.023904{col 78}{space 3}-.0041521
+{txt}{hline 24}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 21}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text}         Absorbed FE{col 22}{c |} Categories{col 35} - Redundant{col 47}  = Num. Coefs{col 62}{c |}
+{col 1}{text}{hline 21}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}        case_wk2open{col 22}{c |}{space 1}     1213{col 35}{space 1}     1213{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text}         case_linkid{col 22}{c |}{space 1}    56612{col 35}{space 1}    56612{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text} case_wk2open_hetero{col 22}{c |}{space 1}     2426{col 35}{space 1}     2426{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text}                yrwk{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text} {col 62}{c |}
+{col 1}{text}        yrwk#c.lnpop{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text}?{col 62}{c |}
+{col 1}{text}      yrwk#c.lngdppc{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text}?{col 62}{c |}
+{col 1}{text}{hline 21}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+? = number of redundant parameters may be higher
+* = FE nested within cluster; treated as redundant for DoF computation
+
+{com}. # delimit cr
+{txt}delimiter now cr
+{com}. eststo ACol2
+{txt}
+{com}. mat E[2,1] = 3
+{txt}
+{com}. mat E[2,2] = _b[Dp_MostAffectedLinks]
+{txt}
+{com}. mat E[2,3] = _se[Dp_MostAffectedLinks]
+{txt}
+{com}. summ CI if MostAffectedLinks == 1 & e(sample) == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 10}CI {c |}{res}    194,699    1.733247    .7167312   .4564438   8.797015
+{txt}
+{com}. mat E[2,4] = `r(mean)'
+{txt}
+{com}. mat E[3,1] = 4
+{txt}
+{com}. mat E[3,2] = _b[Dp_NonMostAffectedLinks]
+{txt}
+{com}. mat E[3,3] = _se[Dp_NonMostAffectedLinks]
+{txt}
+{com}. summ CI if MostAffectedLinks == 0 & e(sample) == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 10}CI {c |}{res}  1,721,184    1.711767    .6988051   .4126076    13.8771
+{txt}
+{com}. mat E[3,4] = `r(mean)'
+{txt}
+{com}. 
+. 
+. /*** Col 3: distance to the treated line ***/
+. cap drop hetero
+{txt}
+{com}. cap drop case_wk2open_hetero
+{txt}
+{com}. gen hetero = 1 if inrange(link2_nearest_treat_line_km,0,1)
+{txt}(2,869,104 missing values generated)
+
+{com}. replace hetero = 2 if inrange(link2_nearest_treat_line_km,1,2.5)
+{txt}(989,443 real changes made)
+
+{com}. tab hetero, m
+
+     {txt}hetero {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          1 {c |}{res}    876,781       23.41       23.41
+{txt}          2 {c |}{res}    989,443       26.41       49.82
+{txt}          . {c |}{res}  1,879,661       50.18      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}  3,745,885      100.00
+{txt}
+{com}. egen case_wk2open_hetero = group(case wk2open hetero)
+{txt}(1879661 missing values generated)
+
+{com}. 
+. # delimit ;
+{txt}delimiter now ;
+{com}. reghdfe lnspd_res 
+>         Dp_dist2line_0to1 Dp_dist2line_1to2p5
+>         treat  if (link2_nearest_treat_line_km <= 2.5)
+>         , a(case_wk2open case_linkid case_wk2open_hetero yrwk##c.(lnpop lngdppc)) cluster(case)
+> ;
+{res}{txt}note: treat is probably collinear with the fixed effects (all values close to zero after partialling-out; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 19 iterations)
+{res}{txt}note: treat omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res} 1,866,224
+{txt}Absorbing 4 HDFE groups{col 51}F({res}   2{txt},{res}     34{txt}){col 67}= {res}     16.09
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.2508
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.2263
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0011
+{txt}{col 1}Number of clusters ({res}case{txt}) {col 30}= {res}        35{txt}{col 51}Root MSE{col 67}= {res}    0.1212
+
+{txt}{ralign 85:(Std. Err. adjusted for {res:35} clusters in case)}
+{hline 20}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 21}{c |}{col 33}    Robust
+{col 1}          lnspd_res{col 21}{c |}      Coef.{col 33}   Std. Err.{col 45}      t{col 53}   P>|t|{col 61}     [95% Con{col 74}f. Interval]
+{hline 20}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 2}Dp_dist2line_0to1 {c |}{col 21}{res}{space 2} .0482815{col 33}{space 2} .0085295{col 44}{space 1}    5.66{col 53}{space 3}0.000{col 61}{space 4} .0309474{col 74}{space 3} .0656155
+{txt}Dp_dist2line_1to2p5 {c |}{col 21}{res}{space 2} .0217347{col 33}{space 2}  .007206{col 44}{space 1}    3.02{col 53}{space 3}0.005{col 61}{space 4} .0070903{col 74}{space 3} .0363792
+{txt}{space 14}treat {c |}{col 21}{res}{space 2}        0{col 33}{txt}  (omitted)
+{space 14}_cons {c |}{col 21}{res}{space 2}-.0171416{col 33}{space 2} .0048339{col 44}{space 1}   -3.55{col 53}{space 3}0.001{col 61}{space 4}-.0269653{col 74}{space 3} -.007318
+{txt}{hline 20}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 21}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text}         Absorbed FE{col 22}{c |} Categories{col 35} - Redundant{col 47}  = Num. Coefs{col 62}{c |}
+{col 1}{text}{hline 21}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}        case_wk2open{col 22}{c |}{space 1}     1213{col 35}{space 1}     1213{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text}         case_linkid{col 22}{c |}{space 1}    55029{col 35}{space 1}    55029{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text} case_wk2open_hetero{col 22}{c |}{space 1}     2426{col 35}{space 1}     2426{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text}                yrwk{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text} {col 62}{c |}
+{col 1}{text}        yrwk#c.lnpop{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text}?{col 62}{c |}
+{col 1}{text}      yrwk#c.lngdppc{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text}?{col 62}{c |}
+{col 1}{text}{hline 21}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+? = number of redundant parameters may be higher
+* = FE nested within cluster; treated as redundant for DoF computation
+
+{com}. # delimit cr
+{txt}delimiter now cr
+{com}. eststo ACol3
+{txt}
+{com}. mat E[4,1] = 6
+{txt}
+{com}. mat E[4,2] = _b[Dp_dist2line_0to1]
+{txt}
+{com}. mat E[4,3] = _se[Dp_dist2line_0to1]
+{txt}
+{com}. summ CI if inrange(link2_nearest_treat_line_km,0,1)==1 & e(sample) == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 10}CI {c |}{res}    876,781    1.702005    .6811895   .4126076    12.8189
+{txt}
+{com}. mat E[4,4] = `r(mean)'
+{txt}
+{com}. mat E[5,1] = 7
+{txt}
+{com}. mat E[5,2] = _b[Dp_dist2line_1to2p5]
+{txt}
+{com}. mat E[5,3] = _se[Dp_dist2line_1to2p5]
+{txt}
+{com}. summ CI if inrange(link2_nearest_treat_line_km,1,2.5)==1 & e(sample) == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 10}CI {c |}{res}    989,443    1.728455    .7202723   .4452386    13.8771
+{txt}
+{com}. mat E[5,4] = `r(mean)'
+{txt}
+{com}. 
+. 
+. /*** Col 4: parallel vs. orthogonal  ***/
+. cap drop hetero
+{txt}
+{com}. cap drop case_wk2open_hetero
+{txt}
+{com}. gen hetero = 1 if same_direct == 1
+{txt}(1,889,228 missing values generated)
+
+{com}. replace hetero = 2 if same_direct == 0 
+{txt}(1,879,210 real changes made)
+
+{com}. tab hetero, m
+
+     {txt}hetero {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          1 {c |}{res}  1,856,657       49.57       49.57
+{txt}          2 {c |}{res}  1,879,210       50.17       99.73
+{txt}          . {c |}{res}     10,018        0.27      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}  3,745,885      100.00
+{txt}
+{com}. egen case_wk2open_hetero = group(case wk2open hetero)
+{txt}(10018 missing values generated)
+
+{com}. # delimit ;
+{txt}delimiter now ;
+{com}. reghdfe lnspd_res 
+>         Dp_same_direct Dp_diff_direct
+>         treat if (link2_nearest_treat_line_km <= 2.5 | treat == 0)
+>         , a(case_wk2open case_linkid case_wk2open_hetero yrwk##c.(lnpop lngdppc)) cluster(case)
+> ;
+{res}{txt}note: treat is probably collinear with the fixed effects (all values close to zero after partialling-out; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 18 iterations)
+{res}{txt}note: treat omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res} 1,915,883
+{txt}Absorbing 4 HDFE groups{col 51}F({res}   2{txt},{res}     34{txt}){col 67}= {res}     10.76
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0002
+{txt}{col 51}R-squared{col 67}= {res}    0.2462
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.2217
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0008
+{txt}{col 1}Number of clusters ({res}case{txt}) {col 30}= {res}        35{txt}{col 51}Root MSE{col 67}= {res}    0.1214
+
+{txt}{ralign 80:(Std. Err. adjusted for {res:35} clusters in case)}
+{hline 15}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 16}{c |}{col 28}    Robust
+{col 1}     lnspd_res{col 16}{c |}      Coef.{col 28}   Std. Err.{col 40}      t{col 48}   P>|t|{col 56}     [95% Con{col 69}f. Interval]
+{hline 15}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+Dp_same_direct {c |}{col 16}{res}{space 2} .0336985{col 28}{space 2} .0075329{col 39}{space 1}    4.47{col 48}{space 3}0.000{col 56}{space 4} .0183899{col 69}{space 3} .0490072
+{txt}Dp_diff_direct {c |}{col 16}{res}{space 2} .0285918{col 28}{space 2} .0068702{col 39}{space 1}    4.16{col 48}{space 3}0.000{col 56}{space 4} .0146299{col 69}{space 3} .0425538
+{txt}{space 9}treat {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 9}_cons {c |}{col 16}{res}{space 2}-.0145706{col 28}{space 2} .0047228{col 39}{space 1}   -3.09{col 48}{space 3}0.004{col 56}{space 4}-.0241684{col 69}{space 3}-.0049728
+{txt}{hline 15}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 21}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text}         Absorbed FE{col 22}{c |} Categories{col 35} - Redundant{col 47}  = Num. Coefs{col 62}{c |}
+{col 1}{text}{hline 21}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}        case_wk2open{col 22}{c |}{space 1}     1213{col 35}{space 1}     1213{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text}         case_linkid{col 22}{c |}{space 1}    56612{col 35}{space 1}    56612{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text} case_wk2open_hetero{col 22}{c |}{space 1}     2426{col 35}{space 1}     2426{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text}                yrwk{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text} {col 62}{c |}
+{col 1}{text}        yrwk#c.lnpop{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text}?{col 62}{c |}
+{col 1}{text}      yrwk#c.lngdppc{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text}?{col 62}{c |}
+{col 1}{text}{hline 21}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+? = number of redundant parameters may be higher
+* = FE nested within cluster; treated as redundant for DoF computation
+
+{com}. # delimit cr
+{txt}delimiter now cr
+{com}. eststo ACol4
+{txt}
+{com}. mat E[6,1] = 9
+{txt}
+{com}. mat E[6,2] = _b[Dp_same_direct]
+{txt}
+{com}. mat E[6,3] = _se[Dp_same_direct]
+{txt}
+{com}. summ CI if same_direct==1 & e(sample) == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 10}CI {c |}{res}    961,441    1.711992    .7038816   .4126076    12.8447
+{txt}
+{com}. mat E[6,4] = `r(mean)'
+{txt}
+{com}. mat E[7,1] = 10
+{txt}
+{com}. mat E[7,2] = _b[Dp_diff_direct]
+{txt}
+{com}. mat E[7,3] = _se[Dp_diff_direct]
+{txt}
+{com}. summ CI if same_direct==0 & e(sample) == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 10}CI {c |}{res}    954,442    1.715922      .69743   .4452386    13.8771
+{txt}
+{com}. mat E[7,4] = `r(mean)'
+{txt}
+{com}. 
+. 
+. /*** Col 5: congested & non-congested  ***/
+. cap drop hetero
+{txt}
+{com}. cap drop case_wk2open_hetero
+{txt}
+{com}. gen hetero = 1 if MoreCongested == 1
+{txt}(2,393,331 missing values generated)
+
+{com}. replace hetero = 2 if MoreCongested == 0
+{txt}(2,393,331 real changes made)
+
+{com}. tab hetero, m
+
+     {txt}hetero {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          1 {c |}{res}  1,352,554       36.11       36.11
+{txt}          2 {c |}{res}  2,393,331       63.89      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}  3,745,885      100.00
+{txt}
+{com}. egen case_wk2open_hetero = group(case wk2open hetero)
+{txt}
+{com}.         /* avg CI is 1.75 */
+. # delimit ;
+{txt}delimiter now ;
+{com}. reghdfe lnspd_res
+>         Dp_MoreCongested Dp_LessCongested
+>         treat if (link2_nearest_treat_line_km <= 2.5 | treat == 0)
+>         , a(case_wk2open case_linkid case_wk2open_hetero yrwk##c.(lnpop lngdppc)) cluster(case)
+> ;
+{res}{txt}note: treat is probably collinear with the fixed effects (all values close to zero after partialling-out; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 18 iterations)
+{res}{txt}note: treat omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res} 1,925,901
+{txt}Absorbing 4 HDFE groups{col 51}F({res}   2{txt},{res}     34{txt}){col 67}= {res}      8.84
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0008
+{txt}{col 51}R-squared{col 67}= {res}    0.2732
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.2494
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0007
+{txt}{col 1}Number of clusters ({res}case{txt}) {col 30}= {res}        35{txt}{col 51}Root MSE{col 67}= {res}    0.1192
+
+{txt}{ralign 82:(Std. Err. adjusted for {res:35} clusters in case)}
+{hline 17}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 18}{c |}{col 30}    Robust
+{col 1}       lnspd_res{col 18}{c |}      Coef.{col 30}   Std. Err.{col 42}      t{col 50}   P>|t|{col 58}     [95% Con{col 71}f. Interval]
+{hline 17}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+Dp_MoreCongested {c |}{col 18}{res}{space 2}  .039525{col 30}{space 2} .0113509{col 41}{space 1}    3.48{col 50}{space 3}0.001{col 58}{space 4} .0164572{col 71}{space 3} .0625928
+{txt}Dp_LessCongested {c |}{col 18}{res}{space 2} .0188148{col 30}{space 2} .0054012{col 41}{space 1}    3.48{col 50}{space 3}0.001{col 58}{space 4} .0078383{col 71}{space 3} .0297913
+{txt}{space 11}treat {c |}{col 18}{res}{space 2}        0{col 30}{txt}  (omitted)
+{space 11}_cons {c |}{col 18}{res}{space 2}-.0115305{col 30}{space 2} .0045027{col 41}{space 1}   -2.56{col 50}{space 3}0.015{col 58}{space 4}-.0206811{col 71}{space 3}-.0023798
+{txt}{hline 17}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 21}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text}         Absorbed FE{col 22}{c |} Categories{col 35} - Redundant{col 47}  = Num. Coefs{col 62}{c |}
+{col 1}{text}{hline 21}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}        case_wk2open{col 22}{c |}{space 1}     1213{col 35}{space 1}     1213{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text}         case_linkid{col 22}{c |}{space 1}    57224{col 35}{space 1}    57224{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text} case_wk2open_hetero{col 22}{c |}{space 1}     2426{col 35}{space 1}     2426{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text}                yrwk{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text} {col 62}{c |}
+{col 1}{text}        yrwk#c.lnpop{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text}?{col 62}{c |}
+{col 1}{text}      yrwk#c.lngdppc{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text}?{col 62}{c |}
+{col 1}{text}{hline 21}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+? = number of redundant parameters may be higher
+* = FE nested within cluster; treated as redundant for DoF computation
+
+{com}. # delimit cr
+{txt}delimiter now cr
+{com}. eststo ACol5
+{txt}
+{com}. mat E[8,1] = 12
+{txt}
+{com}. mat E[8,2] = _b[Dp_MoreCongested]
+{txt}
+{com}. mat E[8,3] = _se[Dp_MoreCongested]
+{txt}
+{com}. summ CI if MoreCongested == 1 & e(sample) == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 10}CI {c |}{res}    730,989    2.198124     .853733    .590927    13.8771
+{txt}
+{com}. mat E[8,4] = `r(mean)'
+{txt}
+{com}. mat E[9,1] = 13
+{txt}
+{com}. mat E[9,2] = _b[Dp_LessCongested]
+{txt}
+{com}. mat E[9,3] = _se[Dp_LessCongested]
+{txt}
+{com}. summ CI if MoreCongested == 0 & e(sample) == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 10}CI {c |}{res}  1,194,912    1.416658    .3359425   .4126076   11.53445
+{txt}
+{com}. mat E[9,4] = `r(mean)'
+{txt}
+{com}. 
+.         
+. /*** Col 6: road type ***/
+. cap drop hetero
+{txt}
+{com}. cap drop case_wk2open_hetero
+{txt}
+{com}. gen hetero = 1 if inlist(roadtype,1,2)
+{txt}(3,644,486 missing values generated)
+
+{com}. replace hetero = 2 if roadtype == 3
+{txt}(1,340,157 real changes made)
+
+{com}. replace hetero = 3 if roadtype == 4 | roadtype == .
+{txt}(2,304,329 real changes made)
+
+{com}. tab hetero, m
+
+     {txt}hetero {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          1 {c |}{res}    101,399        2.71        2.71
+{txt}          2 {c |}{res}  1,340,157       35.78       38.48
+{txt}          3 {c |}{res}  2,304,329       61.52      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}  3,745,885      100.00
+{txt}
+{com}. egen case_wk2open_hetero = group(case wk2open hetero)
+{txt}
+{com}. # delimit ;
+{txt}delimiter now ;
+{com}. reghdfe lnspd_res 
+>         Dp_Roadtype12 Dp_Roadtype3 Dp_Roadtype4
+>         treat if (link2_nearest_treat_line_km <= 2.5 | treat == 0)
+>         , a(case_wk2open case_linkid case_wk2open_hetero yrwk##c.(lnpop lngdppc)) cluster(case)
+> ;
+{res}{txt}note: treat is probably collinear with the fixed effects (all values close to zero after partialling-out; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 19 iterations)
+{res}{txt}note: treat omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res} 1,925,901
+{txt}Absorbing 4 HDFE groups{col 51}F({res}   3{txt},{res}     34{txt}){col 67}= {res}      8.67
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0002
+{txt}{col 51}R-squared{col 67}= {res}    0.2520
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.2270
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0007
+{txt}{col 1}Number of clusters ({res}case{txt}) {col 30}= {res}        35{txt}{col 51}Root MSE{col 67}= {res}    0.1209
+
+{txt}{ralign 79:(Std. Err. adjusted for {res:35} clusters in case)}
+{hline 14}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 15}{c |}{col 27}    Robust
+{col 1}    lnspd_res{col 15}{c |}      Coef.{col 27}   Std. Err.{col 39}      t{col 47}   P>|t|{col 55}     [95% Con{col 68}f. Interval]
+{hline 14}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+Dp_Roadtype12 {c |}{col 15}{res}{space 2} .0311663{col 27}{space 2}  .011407{col 38}{space 1}    2.73{col 47}{space 3}0.010{col 55}{space 4} .0079844{col 68}{space 3} .0543481
+{txt}{space 1}Dp_Roadtype3 {c |}{col 15}{res}{space 2} .0368563{col 27}{space 2} .0075979{col 38}{space 1}    4.85{col 47}{space 3}0.000{col 55}{space 4} .0214155{col 68}{space 3} .0522972
+{txt}{space 1}Dp_Roadtype4 {c |}{col 15}{res}{space 2} .0249819{col 27}{space 2}  .006722{col 38}{space 1}    3.72{col 47}{space 3}0.001{col 55}{space 4} .0113212{col 68}{space 3} .0386426
+{txt}{space 8}treat {c |}{col 15}{res}{space 2}        0{col 27}{txt}  (omitted)
+{space 8}_cons {c |}{col 15}{res}{space 2} -.012927{col 27}{space 2} .0045775{col 38}{space 1}   -2.82{col 47}{space 3}0.008{col 55}{space 4}-.0222296{col 68}{space 3}-.0036245
+{txt}{hline 14}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 21}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text}         Absorbed FE{col 22}{c |} Categories{col 35} - Redundant{col 47}  = Num. Coefs{col 62}{c |}
+{col 1}{text}{hline 21}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}        case_wk2open{col 22}{c |}{space 1}     1213{col 35}{space 1}     1213{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text}         case_linkid{col 22}{c |}{space 1}    57224{col 35}{space 1}    57224{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text} case_wk2open_hetero{col 22}{c |}{space 1}     3639{col 35}{space 1}     3639{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text}                yrwk{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text} {col 62}{c |}
+{col 1}{text}        yrwk#c.lnpop{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text}?{col 62}{c |}
+{col 1}{text}      yrwk#c.lngdppc{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text}?{col 62}{c |}
+{col 1}{text}{hline 21}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+? = number of redundant parameters may be higher
+* = FE nested within cluster; treated as redundant for DoF computation
+
+{com}. # delimit cr
+{txt}delimiter now cr
+{com}. eststo ACol6
+{txt}
+{com}. mat E[10,1] = 15
+{txt}
+{com}. mat E[10,2] = _b[Dp_Roadtype12]
+{txt}
+{com}. mat E[10,3] = _se[Dp_Roadtype12]
+{txt}
+{com}. summ CI if inlist(roadtype,1,2) & e(sample) == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 10}CI {c |}{res}     46,783    1.576115     .700328   .4452386    12.7163
+{txt}
+{com}. mat E[10,4] = `r(mean)'
+{txt}
+{com}. mat E[11,1] = 16
+{txt}
+{com}. mat E[11,2] = _b[Dp_Roadtype3]
+{txt}
+{com}. mat E[11,3] = _se[Dp_Roadtype3]
+{txt}
+{com}. summ CI if inlist(roadtype,3) & e(sample) == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 10}CI {c |}{res}    639,570    1.775933     .799072   .4126076    13.8771
+{txt}
+{com}. mat E[11,4] = `r(mean)'
+{txt}
+{com}. mat E[12,1] = 17
+{txt}
+{com}. mat E[12,2] = _b[Dp_Roadtype4]
+{txt}
+{com}. mat E[12,3] = _se[Dp_Roadtype4]
+{txt}
+{com}. summ CI if inlist(roadtype,4) & e(sample) == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 10}CI {c |}{res}  1,229,530    1.686952    .6409039   .4564438   11.77295
+{txt}
+{com}. mat E[12,4] = `r(mean)'
+{txt}
+{com}. 
+.         
+. /*** Col 7: With or Against Traffic ***/
+.         /*** In the sample, each observation is a road segment - week to open - morning/evening rush hour ***/
+. preserve
+{txt}
+{com}.         merge 1:m case linkid wk2open using Data/WithAgainstTraffic.dta
+{res}
+{txt}{col 5}Result{col 38}# of obs.
+{col 5}{hline 41}
+{col 5}not matched{col 30}{res}               0
+{txt}{col 5}matched{col 30}{res}       7,491,770{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}.         drop if _merge == 2
+{txt}(0 observations deleted)
+
+{com}.         drop _merge
+{txt}
+{com}.         drop if WithTraffic == .
+{txt}(0 observations deleted)
+
+{com}.         
+.         gen Dp_WithTraffic = Dp * (WithTraffic == 1)
+{txt}
+{com}.         gen Dp_AgainstTraffic = Dp * (WithTraffic == 0)
+{txt}
+{com}. 
+.         cap drop hetero
+{txt}
+{com}.         cap drop case_wk2open_hetero
+{txt}
+{com}.         gen hetero = 1 if WithTraffic == 0
+{txt}(3,745,885 missing values generated)
+
+{com}.         replace hetero = 2 if WithTraffic == 1
+{txt}(3,745,885 real changes made)
+
+{com}.         tab hetero, m
+
+     {txt}hetero {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          1 {c |}{res}  3,745,885       50.00       50.00
+{txt}          2 {c |}{res}  3,745,885       50.00      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}  7,491,770      100.00
+{txt}
+{com}.         egen case_wk2open_hetero = group(case wk2open hetero)
+{txt}
+{com}. 
+.         # delimit ;
+{txt}delimiter now ;
+{com}.         reghdfe lnspd_res_WithAgainstTraffic 
+>                 Dp_WithTraffic Dp_AgainstTraffic
+>                 treat if (link2_nearest_treat_line_km <= 2.5 | treat == 0)
+>                 , a(case_wk2open case_linkid case_wk2open_hetero yrwk##c.(lnpop lngdppc)) cluster(case)
+>         ;
+{res}{txt}note: treat is probably collinear with the fixed effects (all values close to zero after partialling-out; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 17 iterations)
+{res}{txt}note: treat omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res} 3,851,802
+{txt}Absorbing 4 HDFE groups{col 51}F({res}   2{txt},{res}     34{txt}){col 67}= {res}     11.70
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0001
+{txt}{col 51}R-squared{col 67}= {res}    0.1859
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.1727
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0006
+{txt}{col 1}Number of clusters ({res}case{txt}) {col 30}= {res}        35{txt}{col 51}Root MSE{col 67}= {res}    0.1456
+
+{txt}{ralign 83:(Std. Err. adjusted for {res:35} clusters in case)}
+{hline 18}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 19}{c |}{col 31}    Robust
+{col 1}lnspd_res_WithA~c{col 19}{c |}      Coef.{col 31}   Std. Err.{col 43}      t{col 51}   P>|t|{col 59}     [95% Con{col 72}f. Interval]
+{hline 18}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 3}Dp_WithTraffic {c |}{col 19}{res}{space 2} .0329647{col 31}{space 2} .0070129{col 42}{space 1}    4.70{col 51}{space 3}0.000{col 59}{space 4} .0187128{col 72}{space 3} .0472167
+{txt}Dp_AgainstTraffic {c |}{col 19}{res}{space 2}  .028026{col 31}{space 2} .0063878{col 42}{space 1}    4.39{col 51}{space 3}0.000{col 59}{space 4} .0150444{col 72}{space 3} .0410075
+{txt}{space 12}treat {c |}{col 19}{res}{space 2}        0{col 31}{txt}  (omitted)
+{space 12}_cons {c |}{col 19}{res}{space 2}-.0140013{col 31}{space 2} .0046552{col 42}{space 1}   -3.01{col 51}{space 3}0.005{col 59}{space 4}-.0234618{col 72}{space 3}-.0045408
+{txt}{hline 18}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 21}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text}         Absorbed FE{col 22}{c |} Categories{col 35} - Redundant{col 47}  = Num. Coefs{col 62}{c |}
+{col 1}{text}{hline 21}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}        case_wk2open{col 22}{c |}{space 1}     1213{col 35}{space 1}     1213{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text}         case_linkid{col 22}{c |}{space 1}    57224{col 35}{space 1}    57224{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text} case_wk2open_hetero{col 22}{c |}{space 1}     2426{col 35}{space 1}     2426{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text}                yrwk{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text} {col 62}{c |}
+{col 1}{text}        yrwk#c.lnpop{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text}?{col 62}{c |}
+{col 1}{text}      yrwk#c.lngdppc{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text}?{col 62}{c |}
+{col 1}{text}{hline 21}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+? = number of redundant parameters may be higher
+* = FE nested within cluster; treated as redundant for DoF computation
+
+{com}.         # delimit cr
+{txt}delimiter now cr
+{com}.         eststo ACol7
+{txt}
+{com}.         mat E[13,1] = 19
+{txt}
+{com}.         mat E[13,2] = _b[Dp_WithTraffic]
+{txt}
+{com}.         mat E[13,3] = _se[Dp_WithTraffic]
+{txt}
+{com}.         summ CI_WithAgainstTraffic if WithTraffic == 1 & e(sample) == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+CI_WithAga~c {c |}{res}  1,925,901    1.889995    .9757866   .4062091   18.06157
+{txt}
+{com}.         mat E[13,4] = `r(mean)'
+{txt}
+{com}.         mat E[14,1] = 20
+{txt}
+{com}.         mat E[14,2] = _b[Dp_AgainstTraffic]
+{txt}
+{com}.         mat E[14,3] = _se[Dp_AgainstTraffic]
+{txt}
+{com}.         summ CI_WithAgainstTraffic if WithTraffic == 0 & e(sample) == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+CI_WithAga~c {c |}{res}  1,925,901    1.536458     .566142    .419006   18.29859
+{txt}
+{com}.         mat E[14,4] = `r(mean)'
+{txt}
+{com}. restore
+{txt}
+{com}. 
+. 
+. /*** Col 8: Rush hour vs. non-rush hour ***/
+.         /*** In the sample, each observation is a road segment - week to open - rush/non-rush hour ***/
+. preserve
+{txt}
+{com}.         cap drop lnspd_res 
+{txt}
+{com}.         cap drop CI_res 
+{txt}
+{com}.         cap drop CI 
+{txt}
+{com}.         cap drop speed 
+{txt}
+{com}.         cap drop lnspd
+{txt}
+{com}.         merge 1:m case linkid wk2open using Data/RushNonrusHours.dta
+{res}
+{txt}{col 5}Result{col 38}# of obs.
+{col 5}{hline 41}
+{col 5}not matched{col 30}{res}          19,006
+{txt}{col 9}from master{col 30}{res}          19,006{txt}  (_merge==1)
+{col 9}from using{col 30}{res}               0{txt}  (_merge==2)
+
+{col 5}matched{col 30}{res}       7,453,758{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. 
+.         drop if _merge == 2
+{txt}(0 observations deleted)
+
+{com}.         drop _merge
+{txt}
+{com}.         drop if rushhour == .
+{txt}(19,006 observations deleted)
+
+{com}.         
+.         gen Dp_Rush = Dp * (rushhour == 1)
+{txt}
+{com}.         gen Dp_NoRush = Dp * (rushhour == 0)
+{txt}
+{com}. 
+.         cap drop hetero
+{txt}
+{com}.         cap drop case_wk2open_hetero
+{txt}
+{com}.         gen hetero = 1 if rushhour == 0
+{txt}(3,726,879 missing values generated)
+
+{com}.         replace hetero = 2 if rushhour == 1
+{txt}(3,726,879 real changes made)
+
+{com}.         tab hetero, m
+
+     {txt}hetero {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          1 {c |}{res}  3,726,879       50.00       50.00
+{txt}          2 {c |}{res}  3,726,879       50.00      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}  7,453,758      100.00
+{txt}
+{com}.         egen case_wk2open_hetero = group(case wk2open hetero)
+{txt}
+{com}.         egen link_rushhour = group(linkid rushhou)
+{txt}
+{com}. 
+.         # delimit ;
+{txt}delimiter now ;
+{com}.         reghdfe lnspd_res 
+>                 Dp_Rush Dp_NoRush
+>                 treat if (link2_nearest_treat_line_km <= 2.5 | treat == 0)
+>                 , a(case_linkid case_wk2open_hetero link_rushhour yrwk##c.(lnpop lngdppc)) cluster(case)
+>         ;
+{res}{txt}note: treat is probably collinear with the fixed effects (all values close to zero after partialling-out; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 26 iterations)
+{res}{txt}note: treat omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res} 3,829,844
+{txt}Absorbing 4 HDFE groups{col 51}F({res}   2{txt},{res}     34{txt}){col 67}= {res}     14.01
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.2387
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.2042
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0006
+{txt}{col 1}Number of clusters ({res}case{txt}) {col 30}= {res}        35{txt}{col 51}Root MSE{col 67}= {res}    0.1114
+
+{txt}{ralign 78:(Std. Err. adjusted for {res:35} clusters in case)}
+{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}   lnspd_res{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}Dp_Rush {c |}{col 14}{res}{space 2} .0304229{col 26}{space 2} .0062206{col 37}{space 1}    4.89{col 46}{space 3}0.000{col 54}{space 4} .0177813{col 67}{space 3} .0430646
+{txt}{space 3}Dp_NoRush {c |}{col 14}{res}{space 2} .0143111{col 26}{space 2} .0048488{col 37}{space 1}    2.95{col 46}{space 3}0.006{col 54}{space 4} .0044572{col 67}{space 3} .0241651
+{txt}{space 7}treat {c |}{col 14}{res}{space 2}        0{col 26}{txt}  (omitted)
+{space 7}_cons {c |}{col 14}{res}{space 2}-.0076989{col 26}{space 2} .0037035{col 37}{space 1}   -2.08{col 46}{space 3}0.045{col 54}{space 4}-.0152253{col 67}{space 3}-.0001726
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 21}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text}         Absorbed FE{col 22}{c |} Categories{col 35} - Redundant{col 47}  = Num. Coefs{col 62}{c |}
+{col 1}{text}{hline 21}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}         case_linkid{col 22}{c |}{space 1}    56932{col 35}{space 1}    56932{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text} case_wk2open_hetero{col 22}{c |}{space 1}     2426{col 35}{space 1}     2426{col 47}{result}{space 1}        0{col 61}{text}*{col 62}{c |}
+{col 1}{text}       link_rushhour{col 22}{c |}{space 1}   106376{col 35}{space 1}        0{col 47}{result}{space 1}   106376{col 61}{text} {col 62}{c |}
+{col 1}{text}                yrwk{col 22}{c |}{space 1}       74{col 35}{space 1}        1{col 47}{result}{space 1}       73{col 61}{text} {col 62}{c |}
+{col 1}{text}        yrwk#c.lnpop{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text}?{col 62}{c |}
+{col 1}{text}      yrwk#c.lngdppc{col 22}{c |}{space 1}       74{col 35}{space 1}        0{col 47}{result}{space 1}       74{col 61}{text}?{col 62}{c |}
+{col 1}{text}{hline 21}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+? = number of redundant parameters may be higher
+* = FE nested within cluster; treated as redundant for DoF computation
+
+{com}.         # delimit cr
+{txt}delimiter now cr
+{com}.         eststo ACol8
+{txt}
+{com}.         mat E[15,1] = 22
+{txt}
+{com}.         mat E[15,2] = _b[Dp_Rush]
+{txt}
+{com}.         mat E[15,3] = _se[Dp_Rush]
+{txt}
+{com}.         summ CI if rushhour == 1 & e(sample) == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 10}CI {c |}{res}  1,914,922    1.713764    .7006401   .4126076    13.8771
+{txt}
+{com}.         mat E[15,4] = `r(mean)'
+{txt}
+{com}.         mat E[16,1] = 23
+{txt}
+{com}.         mat E[16,2] = _b[Dp_NoRush]
+{txt}
+{com}.         mat E[16,3] = _se[Dp_NoRush]
+{txt}
+{com}.         summ CI if rushhour == 0 & e(sample) == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 10}CI {c |}{res}  1,914,922    1.498072    .5496592   .4236183   14.38577
+{txt}
+{com}.         mat E[16,4] = `r(mean)'
+{txt}
+{com}. restore
+{txt}
+{com}. 
+. /*** Col 9: distance to lines ***/
+. /* Cat 1: dist to treated line <1 */
+. gen Dp_DistCat1 = Dp * (inrange(link2_nearest_treat_line_km,0,1))
+{txt}
+{com}. /* Cat 2: dist to treated line [1,2.5], */
+. gen Dp_DistCat2 = Dp * (inrange(link2_nearest_treat_line_km,1,2.5))
+{txt}
+{com}. /* Cat 3: dist to treated line > 2.5, dist to any line < 1*/
+. gen Dp_DistCat3 = Dp * (inrange(link2_nearest_treat_line_km,2.5,.) & inrange(link2_nearest_line_km,0,1))
+{txt}
+{com}. /* Cat 4: dist to treated line > 2.5, dist to any line > 1*/
+. gen Dp_DistCat4 = Dp * (inrange(link2_nearest_treat_line_km,2.5,.) & inrange(link2_nearest_line_km,1,2.5))
+{txt}
+{com}. 
+. # delimit ;
+{txt}delimiter now ;
+{com}. reghdfe lnspd_res 
+>         Dp_DistCat1 Dp_DistCat2 Dp_DistCat3 Dp_DistCat4
+>         treat if (link2_nearest_line_km <= 2.5 | treat == 0)
+>         , a(case_wk2open case_linkid yrwk##c.(lnpop lngdppc)) cluster(case)
+> ;
+{res}{txt}note: treat is probably collinear with the fixed effects (all values close to zero after partialling-out; tol = 1.0e-09)
+{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 21 iterations)
+{res}{txt}note: treat omitted because of collinearity
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res} 3,508,817
+{txt}Absorbing 3 HDFE groups{col 51}F({res}   4{txt},{res}     34{txt}){col 67}= {res}      9.30
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.2404
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.2170
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0008
+{txt}{col 1}Number of clusters ({res}case{txt}) {col 30}= {res}        35{txt}{col 51}Root MSE{col 67}= {res}    0.1195
+
+{txt}{ralign 78:(Std. Err. adjusted for {res:35} clusters in case)}
+{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}   lnspd_res{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 1}Dp_DistCat1 {c |}{col 14}{res}{space 2} .0401807{col 26}{space 2} .0076521{col 37}{space 1}    5.25{col 46}{space 3}0.000{col 54}{space 4} .0246297{col 67}{space 3} .0557317
+{txt}{space 1}Dp_DistCat2 {c |}{col 14}{res}{space 2} .0234057{col 26}{space 2} .0071427{col 37}{space 1}    3.28{col 46}{space 3}0.002{col 54}{space 4}   .00889{col 67}{space 3} .0379213
+{txt}{space 1}Dp_DistCat3 {c |}{col 14}{res}{space 2}  .020825{col 26}{space 2} .0069053{col 37}{space 1}    3.02{col 46}{space 3}0.005{col 54}{space 4} .0067917{col 67}{space 3} .0348583
+{txt}{space 1}Dp_DistCat4 {c |}{col 14}{res}{space 2} .0160915{col 26}{space 2} .0062416{col 37}{space 1}    2.58{col 46}{space 3}0.014{col 54}{space 4}  .003407{col 67}{space 3}  .028776
+{txt}{space 7}treat {c |}{col 14}{res}{space 2}        0{col 26}{txt}  (omitted)
+{space 7}_cons {c |}{col 14}{res}{space 2}-.0139401{col 26}{space 2} .0046646{col 37}{space 1}   -2.99{col 46}{space 3}0.005{col 54}{space 4}-.0234197{col 67}{space 3}-.0044606
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{col 1}{text}{hline 16}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text}    Absorbed FE{col 17}{c |} Categories{col 30} - Redundant{col 42}  = Num. Coefs{col 57}{c |}
+{col 1}{text}{hline 16}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}   case_wk2open{col 17}{c |}{space 1}     1213{col 30}{space 1}     1213{col 42}{result}{space 1}        0{col 56}{text}*{col 57}{c |}
+{col 1}{text}    case_linkid{col 17}{c |}{space 1}   103193{col 30}{space 1}   103193{col 42}{result}{space 1}        0{col 56}{text}*{col 57}{c |}
+{col 1}{text}           yrwk{col 17}{c |}{space 1}       74{col 30}{space 1}        0{col 42}{result}{space 1}       74{col 56}{text} {col 57}{c |}
+{col 1}{text}   yrwk#c.lnpop{col 17}{c |}{space 1}       74{col 30}{space 1}        0{col 42}{result}{space 1}       74{col 56}{text}?{col 57}{c |}
+{col 1}{text} yrwk#c.lngdppc{col 17}{c |}{space 1}       74{col 30}{space 1}        0{col 42}{result}{space 1}       74{col 56}{text}?{col 57}{c |}
+{col 1}{text}{hline 16}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+? = number of redundant parameters may be higher
+* = FE nested within cluster; treated as redundant for DoF computation
+
+{com}. # delimit cr
+{txt}delimiter now cr
+{com}. eststo ACol9
+{txt}
+{com}. mat E[17,1] = 25
+{txt}
+{com}. mat E[17,2] = _b[Dp_DistCat1]
+{txt}
+{com}. mat E[17,3] = _se[Dp_DistCat1]
+{txt}
+{com}. summ CI if (inrange(link2_nearest_treat_line_km,0,1)) & e(sample) == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 10}CI {c |}{res}    876,781    1.702005    .6811895   .4126076    12.8189
+{txt}
+{com}. mat E[17,4] = `r(mean)'
+{txt}
+{com}. mat E[18,1] = 26
+{txt}
+{com}. mat E[18,2] = _b[Dp_DistCat2]
+{txt}
+{com}. mat E[18,3] = _se[Dp_DistCat2]
+{txt}
+{com}. summ CI if (inrange(link2_nearest_treat_line_km,1,2.5)) & e(sample) == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 10}CI {c |}{res}    989,443    1.728455    .7202723   .4452386    13.8771
+{txt}
+{com}. mat E[18,4] = `r(mean)'
+{txt}
+{com}. mat E[19,1] = 27
+{txt}
+{com}. mat E[19,2] = _b[Dp_DistCat3]
+{txt}
+{com}. mat E[19,3] = _se[Dp_DistCat3]
+{txt}
+{com}. summ CI if (inrange(link2_nearest_treat_line_km,2.5,.) & inrange(link2_nearest_line_km,0,1)) & e(sample) == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 10}CI {c |}{res}    773,625     1.69345    .7442541   .4225047   11.90927
+{txt}
+{com}. mat E[19,4] = `r(mean)'
+{txt}
+{com}. mat E[20,1] = 28
+{txt}
+{com}. mat E[20,2] = _b[Dp_DistCat4]
+{txt}
+{com}. mat E[20,3] = _se[Dp_DistCat4]
+{txt}
+{com}. summ CI if (inrange(link2_nearest_treat_line_km,2.5,.) & inrange(link2_nearest_line_km,1,2.5)) & e(sample) == 1
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 10}CI {c |}{res}    809,291    1.703439    .7673686   .5847455   16.71216
+{txt}
+{com}. mat E[20,4] = `r(mean)'
+{txt}
+{com}. 
+. /**************************************/
+. /*** VII. Table and graph                       ***/
+. /**************************************/
+. /*** Table ***/
+. # delimit ;
+{txt}delimiter now ;
+{com}. esttab ACol*, 
+>         keep(Dp*)
+>         b(3) se(3) 
+>         title("Gradient")
+>         nostar
+>         modelwidth(7)
+> ;
+{res}
+{txt}Gradient
+{txt}{hline 84}
+{txt}                 (1)     (2)     (3)     (4)     (5)     (6)     (7)     (8)     (9)
+{txt}             lnspd~s lnspd~s lnspd~s lnspd~s lnspd~s lnspd~s lnspd~c lnspd~s lnspd~s
+{txt}{hline 84}
+{txt}Dp          {res}   0.031                                                                {txt}
+            {res} {ralign 7:{txt:(}0.007{txt:)}}                                                                {txt}
+
+{txt}Dp_NonMost~s{res}           0.029                                                        {txt}
+            {res}         {ralign 7:{txt:(}0.007{txt:)}}                                                        {txt}
+
+{txt}Dp_MostAff~s{res}           0.047                                                        {txt}
+            {res}         {ralign 7:{txt:(}0.011{txt:)}}                                                        {txt}
+
+{txt}Dp_dist2li~1{res}                   0.048                                                {txt}
+            {res}                 {ralign 7:{txt:(}0.009{txt:)}}                                                {txt}
+
+{txt}Dp_dist2l~p5{res}                   0.022                                                {txt}
+            {res}                 {ralign 7:{txt:(}0.007{txt:)}}                                                {txt}
+
+{txt}Dp_same_di~t{res}                           0.034                                        {txt}
+            {res}                         {ralign 7:{txt:(}0.008{txt:)}}                                        {txt}
+
+{txt}Dp_diff_di~t{res}                           0.029                                        {txt}
+            {res}                         {ralign 7:{txt:(}0.007{txt:)}}                                        {txt}
+
+{txt}Dp_MoreCon~d{res}                                   0.040                                {txt}
+            {res}                                 {ralign 7:{txt:(}0.011{txt:)}}                                {txt}
+
+{txt}Dp_LessCon~d{res}                                   0.019                                {txt}
+            {res}                                 {ralign 7:{txt:(}0.005{txt:)}}                                {txt}
+
+{txt}Dp_Roadty~12{res}                                           0.031                        {txt}
+            {res}                                         {ralign 7:{txt:(}0.011{txt:)}}                        {txt}
+
+{txt}Dp_Roadtype3{res}                                           0.037                        {txt}
+            {res}                                         {ralign 7:{txt:(}0.008{txt:)}}                        {txt}
+
+{txt}Dp_Roadtype4{res}                                           0.025                        {txt}
+            {res}                                         {ralign 7:{txt:(}0.007{txt:)}}                        {txt}
+
+{txt}Dp_WithTra~c{res}                                                   0.033                {txt}
+            {res}                                                 {ralign 7:{txt:(}0.007{txt:)}}                {txt}
+
+{txt}Dp_Against~c{res}                                                   0.028                {txt}
+            {res}                                                 {ralign 7:{txt:(}0.006{txt:)}}                {txt}
+
+{txt}Dp_Rush     {res}                                                           0.030        {txt}
+            {res}                                                         {ralign 7:{txt:(}0.006{txt:)}}        {txt}
+
+{txt}Dp_NoRush   {res}                                                           0.014        {txt}
+            {res}                                                         {ralign 7:{txt:(}0.005{txt:)}}        {txt}
+
+{txt}Dp_DistCat1 {res}                                                                   0.040{txt}
+            {res}                                                                 {ralign 7:{txt:(}0.008{txt:)}}{txt}
+
+{txt}Dp_DistCat2 {res}                                                                   0.023{txt}
+            {res}                                                                 {ralign 7:{txt:(}0.007{txt:)}}{txt}
+
+{txt}Dp_DistCat3 {res}                                                                   0.021{txt}
+            {res}                                                                 {ralign 7:{txt:(}0.007{txt:)}}{txt}
+
+{txt}Dp_DistCat4 {res}                                                                   0.016{txt}
+            {res}                                                                 {ralign 7:{txt:(}0.006{txt:)}}{txt}
+{txt}{hline 84}
+{txt}N           {res} 1925901 1915883 1866224 1915883 1925901 1925901 3851802 3829844 3508817{txt}
+{txt}{hline 84}
+{txt}Standard errors in parentheses
+
+{com}. # delimi cr
+{txt}delimiter now cr
+{com}. 
+. # delimit ;
+{txt}delimiter now ;
+{com}. esttab ACol* using TablesFigures/Fig6_Table.tex
+>         , replace 
+>         keep(Dp*)
+>         b(3) se(3) 
+>         title("Heterogeneous Effects")
+>         nostar
+>         modelwidth(7)   
+> ;
+{res}{txt}(output written to {browse  `"TablesFigures/Fig6_Table.tex"'})
+
+{com}. # delimi cr
+{txt}delimiter now cr
+{com}. 
+. /*** graph ***/
+. svmat E
+{txt}
+{com}. gen E2_p2p5  = E2 - 1.96*E3
+{txt}(3,745,865 missing values generated)
+
+{com}. gen E2_p97p5 = E2 + 1.96*E3 
+{txt}(3,745,865 missing values generated)
+
+{com}. 
+. gen F1 = -E1
+{txt}(3,745,865 missing values generated)
+
+{com}. gen F2 = round(E2,0.001)
+{txt}(3,745,865 missing values generated)
+
+{com}. gen F3 = round(E3,0.001)
+{txt}(3,745,865 missing values generated)
+
+{com}. gen F5 = round(E4,0.01)
+{txt}(3,745,865 missing values generated)
+
+{com}. gen F = string(F2) + " (" + string(F3) + ")" + "                " + string(F5)
+{txt}
+{com}. gen F4 = 0.08
+{txt}
+{com}. 
+. replace F1 = 0 in 21
+{txt}(1 real change made)
+
+{com}. replace F = "coeff. (s.e.)      avg. congest index" in 21
+{txt}variable {bf}F{sf} was {bf}{res}str31{sf}{txt} now {bf}{res}str37{sf}
+{txt}(1 real change made)
+
+{com}. 
+. cap label drop F
+{txt}
+{com}. # delimit ;
+{txt}delimiter now ;
+{com}. label def F
+>         0  " "
+>         -1 "                      all"
+>         -3 "directly affected"
+>         -4 "non directly affected"
+>         -6 "d1=[0,1]"
+>         -7 "d1=(1,2.5]"
+>         -9 "parallel"
+>         -10 "orthogonal"
+>         -12 "more congested"
+>         -13 "less congested"    
+>         -15 "highway/expressway"
+>         -16 "arterial roads"
+>         -17 "sub-arterial roads"
+>         -19     "with traffic"
+>         -20     "against traffic"
+>         -22     "rush hour"
+>         -23     "off-peak hour"
+>         -25 "d1=[0,1]"
+>         -26 "d1=(1,2.5]" 
+>         -27 "d1=(2.5,.), d2=[0,1]"
+>         -28 "d1=(2.5,.), d2=(1,.)"
+> ;
+{txt}
+{com}. # delimit cr
+{txt}delimiter now cr
+{com}. label val F1 F
+{txt}
+{com}. 
+. # delimit ;
+{txt}delimiter now ;
+{com}. twoway  (bar E2 F1, barwidth(0.8) fcolor(teal) horizontal) 
+>                 (rcap E2_p2p5 E2_p97p5 F1,  horizontal) 
+>                 (scatter F1 F4, mcolor(white) mlabel(F) mlabsize(vsmall) mlabcolor(black)) 
+>         if F1 <= 0
+>         ,
+>         xline(0, lcolor(black))
+>         xlabel(-0.01 "-.01" 0 "0" 0.05 ".05" 0.1 ".1" 0.15 "", labsize(vsmall))
+>         yline(-24, lcolor(gs8) lwidth(medium) lpattern(dash))
+>         ylabel(0 -1 -3 -4 -6 -7 -9 -10 -12 -13 -15 -16 -17 -19 -20 -22 -23 -25 -26 -27 -28, 
+>                 valuelabel angle(0) labsize(vsmall))
+>         xtitle("coeff.", size(small)) ytitle("")
+>         legend(off)
+>         graphregion(color(white))
+>         xsize(13) ysize(12)
+> ;
+{res}{txt}
+{com}. # delimit cr
+{txt}delimiter now cr
+{com}. 
+. graph export "TablesFigures/Fig6.pdf", replace
+{txt}(file TablesFigures/Fig6.pdf written in PDF format)
+
+{com}. 
+. * end
+. timer off 1
+{txt}
+{com}. timer list 1
+{res}   1:    538.21 /        1 =     538.2140
+{txt}
+{com}. cap log close
+{smcl}
+{com}{sf}{ul off}
