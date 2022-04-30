@@ -14,6 +14,10 @@ timer on 1
 cap log close
 log using "LogFiles/AppB_FigB7", replace
 
+**The objective of this code is to make the seasonal differences through 3 groups: Panel A: Lines launched before 1/31/2017, Panel B: Lines launched between 2/1/2017-11/30/2017 and Panel C : Lines launched after 12/1/2017, through the standard regression of the model.*/
+*/ The regression is run against the treaties before, during and after the launch of the metro lines. The rest refer to the base model*/
+*What is seen in this command can be compared with the estimates in figure 5 already mentioned above. The same methodology is followed.*/
+
 ********************************************************************************
 * PANEL A: Lines launched before 1/31/2017
 ********************************************************************************
@@ -67,6 +71,9 @@ forvalues i = 1/`Amax' {
 /**************************************/
 /*** II. Estimation and extract 	***/
 /**************************************/
+
+*/ The regression is run against the treaties before, during and after the launch of the metro lines. The rest refer to the base model*/
+
 set more off
 # delimit ;
 reghdfe lnspd_res 
