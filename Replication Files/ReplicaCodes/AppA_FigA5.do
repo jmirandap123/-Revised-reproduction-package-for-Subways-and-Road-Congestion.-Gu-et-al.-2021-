@@ -12,9 +12,13 @@ log using "LogFiles/AppA_FigA4", replace
 	/* use data on sample segments in control cities */
 use "Data/HourlySample.dta", clear
 
+*/Este codigo permite inspeccionar a estacionalidad en la velocidad del tráfico en las ciudades de control*/
+
+
 /************************************/
 /*** I. Residual speed			  ***/
 /************************************/
+
 keep if treat == 0
 gen timestr = string(time,"%10.0f")
 gen datestr = substr(timestr,1,8)
@@ -28,9 +32,15 @@ predict lnspd_res, res
 /************************************/
 /*** II. Average log residual speed at the day level ***/
 /************************************/
+
 collapse (first) dow datestr (mean) lnspd_res, by(linkid date)
 
 /*** Collapse to date ***/
+*/Speed is adjusted for a complete set of road segment per day of week per hour of day fixed effects. Weekends and national holidays
+They are excluded.*
+/*To get the adjusted logging rate on each day, the hourly logging rate on each road segment is first rolled back into a full set of indicators with segment, time of day, and day of week indicators fully interacting
+/*Add the average log speed over the sample period.*/
+
 replace lnspd_res = lnspd_res + `const'
 collapse (mean) lnspd_res, by(date)
 
