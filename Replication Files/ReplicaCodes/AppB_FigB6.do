@@ -11,6 +11,9 @@ log using "LogFiles/AppB_FigB6", replace
 
 use Data/BaseSamp.dta, replace
 
+*/ What is being answered is whether subways differ in their effects in relieving congestion. For this, the effect is estimated separately
+for each new metro line using the stacked DID flowers.*/
+
 /**********************************************/
 /*** I. Variables							***/
 /**********************************************/
@@ -29,6 +32,11 @@ gen Dp = treat * (wk2open >= 0)
 /*** I. Simple case-by-case regressions		***/
 /**** Beijing Xijiao Line and Guangzhou Guang-Fo Line not included***/
 /**********************************************/
+
+
+*/Regressions include road segments close to a treated metro line and randomly matched control segments. In addition to this, the standard errors are adjusted for temporal autocorrelations of up to 20 periods and spaces of up to 50 km*/.
+*/In the same way, the binary variable Dp is added, which captures periods related to the opening dates for the different lines.*/
+
 mat B = J(45,4,.)
 qui forvalues i = 1/45 {
 	mat B[`i',2] = `i'
@@ -60,6 +68,9 @@ restore
 /**********************************************/
 /*** II. Simple case-by-case regressions, [-6,6]	***/
 /**********************************************/
+
+*/The sample model is restricted between 6 weeks before and 6 weeks after the opening, in order to avoid attributing dynamic effects to heterogeneous effects.*
+
 set more off
 mat B = J(45,4,.)
 	
