@@ -78,7 +78,11 @@ mat E = A
 /**************************************/
 /*** II.A No hetero					***/
 /**************************************/
-	/* Col 1: None */
+
+/*The following regressions are run through the base model of the paper, with the difference estimated as follows. Panel A does not take into account the seasonality differential between cities. Panel B includes the log population and its interaction with calendar week dummy variables. Group C
+includes logarithm of GDP per capita and its interaction with calendar week dummies. Panel D includes log population and log GDP per capita and their interactions with calendar week dummy variables. Panel E adds quadratic terms.
+
+/* Col 1: None */
 # delimit ;
 reghdfe lnspd_res
 	TP
