@@ -13,25 +13,38 @@ log using "LogFiles/Fig5C", replace
 
 use Data/BaseSamp.dta, replace
 
+
+*/ The target of this code  is to avoid the difference deficiency problem and to be able to include a reasonable time in the sample period. This is why the treated lines are divided into 3 subsamples. This code will work with ; and 15 lines launched after December 1st, 2017*/
+
+
 /**********************************************/
 /*** I. Include only LATER lines			***/
 /**********************************************/
+
+
+**/The subsample is divided for the target date*/
 gen late_lines = (opendate > date("20171130","YMD"))
 keep if late_lines == 1
 
+
+**The relative weeks of line opening are created, including 48 weeks ago and 3 weeks ahead*/
 	/* week-to-open within -48 and 3 */
 keep if inrange(wk2open,-48,3)
 
+**The variable that identifies the tradata is created after opening*/
 	/* Treat X Post */
 gen TP = treat * (wk2open >= 0)
 gen post = (wk2open >= 0)
 
+
+**The loop is created that allows recognizing the week relative to the opening multiplied by the treaties*/
 /*** Week-to-open X Treat  ***/
 summ wk2open
 local Amax = `r(max)'
 local Amin = `r(min)'
 mat A = J(`=`Amax'-`Amin'+1',3,.)
 
+/*The loop is created that allows identifying treaties before opening*/
 	/* prior to opening */
 local n = 1
 forvalues i = `Amin'/-1 {
@@ -43,13 +56,16 @@ forvalues i = `Amin'/-1 {
 	local n = `n' + 1
 }
 
+
+/*The loop is created to identify the treaties during the opening week*/
 	/* week of opening */
 mat A[`n',1] = 0
 
 gen A0 = treat * (wk2open == 0)
 local n = `n' + 1
 
-	/* posterior to opening */
+/*The loop is created that allows identifying treaties after the opening week*/
+/* posterior to opening */
 forvalues i = 1/`Amax' {
 	mat A[`n',1] = `i'
 	
@@ -61,6 +77,8 @@ forvalues i = 1/`Amax' {
 /**************************************/
 /*** II. Estimation and extract 	***/
 /**************************************/
+
+*/ The regression is run against the treaties before, during and after the launch of the metro lines. The rest refer to the base model*/
 set more off
 # delimit ;
 reghdfe lnspd_res 
@@ -69,6 +87,8 @@ reghdfe lnspd_res
 	a(linkid case_wk2open yrwk##c.(lnpop lngdppc), save) resid(A_res)
 ;
 # delimit cr
+
+/**A_hat is predicted and they created the differents matrix according to the loop**/
 predict A_hat, xbd
 
 	/*** Feed matrix ***/
@@ -101,6 +121,9 @@ forvalues i = 1/`Amax' {
 /**************************************/
 /*** III. Bootstrap					***/
 /**************************************/
+
+*/ Bootstrap is performed which creates many simulated samples. Then the previous regression is estimated. Thanks to this, they can create confidence intervals from 499 repetitions of wild block bootstrapping */
+
 local B = 499
 mat AA = J(`=`Amax'-`Amin'+1',`B',.)
 
