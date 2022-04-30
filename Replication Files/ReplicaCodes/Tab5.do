@@ -12,6 +12,9 @@ log using "LogFiles/Tab5", replace
 
 use Data/BaseSamp.dta, replace
 
+*/The objective of this code is to report the correlations between the distance of the HAZs to one meter and the choice of the residents of
+modes of transport*/
+
 
 /*********************************************************************/
 /*** I. Sample and additional variables							   ***/
@@ -30,6 +33,9 @@ gen late_lines = (opendate > date("20171130","YMD"))
 /*** II. Regressions, clustered s.e.							   ***/
 /*********************************************************************/
 eststo clear
+
+/*The following models are controlled by TAZ and fixed effects per year. The explanatory variable is the log-average distance from TAZ to the nearest metro station.*/
+*/The estimates change depending on the three groups of lines*/
 
 /*** Col 1: All lines, week-to-open between [-6,3] ***/
 # delimit ;
@@ -99,7 +105,10 @@ esttab Col* using "TablesFigures/Tab5.tex"
 /*********************************************************************/
 /*** III. Wild bootstrapping									   ***/
 /*********************************************************************/
-/*** Get residuals ***/
+
+*/ Taking into account the previous results, the estimated dependent variable is predicted and get residuals */
+
+
 /*** Col 1: All lines, week-to-open between [-6,3] ***/
 # delimit ;
 reghdfe lnspd_res
@@ -146,6 +155,9 @@ predict yhat4, xbd
 
 
 /*** Bootstrap ***/
+
+*/Finally, the bootstrap allows you to perform simulations for 499 data and thus generate estimates for household VKT and individual transport mode options*/
+
 local B = 499
 forvalues i=2/4 {
 	mat Bstrp`i'_ = J(`=`B'+1',1,.)
