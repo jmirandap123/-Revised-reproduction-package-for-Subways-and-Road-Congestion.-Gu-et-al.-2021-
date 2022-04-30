@@ -11,6 +11,12 @@ timer on 1
 cap log close
 log using "LogFiles/AppB_FigB4", replace
 
+*/The sample in Panels A subway lines that were launched before Apr 30, 2017 and there was no dditional line launched before Jan 31, 2018 in the same city. */
+The sample in Panels B and D includes subway lines that were launched after Apr 30, 2017 and there was no line launched between Aug 1, 2016 and Apr 30, 2017 in the same city.
+*/Panel C shows the placebo effect where the placebolaunch date is December 31, 2017*/
+*/Panel D shows the placebo effect where the placebo launch date is December 31, 2016. All models account for potential differential
+seasonality.*/
+
 /************************************************/
 /*** I. Lines launched before Apr 30, 2017 
 		and there was no additional line launched before Jan 31, 2018
